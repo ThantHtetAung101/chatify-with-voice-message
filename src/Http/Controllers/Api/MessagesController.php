@@ -175,7 +175,7 @@ class MessagesController extends Controller
         $messages = $query->paginate($request->per_page ?? $this->perPage);
         $decodedMessages = $messages->map(function ($message) {
             if ($message->attachment) {
-                $message->attachment = json_decode($message->attachment, true)->new_name;
+                $message->attachment = json_decode($message->attachment, true)['new_name'];
             }
             return $message;
         });
