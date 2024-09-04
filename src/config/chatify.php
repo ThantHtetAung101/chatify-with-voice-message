@@ -7,6 +7,7 @@ return [
     |-------------------------------------
     */
     'name' => env('CHATIFY_NAME', 'Chatify Messenger'),
+    'channel_name' => 'private-chatify',
 
     /*
     |-------------------------------------
