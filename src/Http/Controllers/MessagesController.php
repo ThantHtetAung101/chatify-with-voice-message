@@ -146,7 +146,7 @@ class MessagesController extends Controller
             ]);
             $messageData = Chatify::parseMessage($message);
             if (Auth::user()->id != $request['id']) {
-                $channel_name = config('chatify.pusher.channel_name');
+                $channel_name = config('chatify.channel_name');
                 Chatify::push($channel_name, 'messaging', [
                     'from_id' => Auth::user()->id,
                     'to_id' => $request['id'],
