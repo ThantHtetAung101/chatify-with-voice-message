@@ -578,6 +578,8 @@ function fetchMessages(id, newFetch = false) {
         }
         // trigger seen event
         makeSeen(true);
+        $(".messenger-list-item[data-contact='" + getMessengerId() + "']")
+          .find("p, span").removeAttr("style");
         // Pagination lock & messages page
         noMoreMessages = messagesPage >= data?.last_page;
         if (!noMoreMessages) messagesPage += 1;

@@ -74,8 +74,9 @@ recordBtn.addEventListener('click', event => {
       record.pauseRecording()
 
       isRecording = false;
-      console.log(audioBlob);
       audioMessage = audioBlob
+      sendMessage()
+      audioMessage = null;
     }).catch(error => {
       switch (error.name) {
         case 'InvalidStateError':
@@ -93,6 +94,8 @@ cancelBtn.addEventListener('click', event => {
   record.stopRecording();
 
   let btn = document.querySelector('svg')
+  console.log(btn);
+
   btn.classList.remove('fa-stop')
   btn.classList.add('fa-microphone')
   recording.style.display = 'none'

@@ -36,10 +36,10 @@ $lastMessageBody = strlen($lastMessageBody) > 30 ? mb_substr($lastMessageBody, 0
         </td>
         {{-- center side --}}
         <td>
-        <p data-id="{{ $user->id }}" data-type="user">
+        <p data-id="{{ $user->id }}" data-type="user" style="{{$unseenCounter > 0 ? 'font-weight: bolder; color: black;' : ''}}">
             {{ strlen($user->name) > 12 ? trim(substr($user->name,0,12)).'..' : $user->name }}
             <span class="contact-item-time" data-time="{{$lastMessage->created_at}}">{{ $lastMessage->timeAgo }}</span></p>
-        <span>
+        <span style="{{$unseenCounter > 0 ? 'font-weight: bolder; color: black;' : ''}}">
             {{-- Last Message user indicator --}}
             {!!
                 $lastMessage->from_id == Auth::user()->id
