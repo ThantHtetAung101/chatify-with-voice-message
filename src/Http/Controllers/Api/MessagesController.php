@@ -145,7 +145,8 @@ class MessagesController extends Controller
 
             // send to user using pusher
             if (Auth::user()->id != $request['id']) {
-                Chatify::push("private-chatify." . $request['id'], 'messaging', [
+                $channel_name = config('chatify.channel_name');
+                Chatify::push($channel_name . $request['id'], 'messaging', [
                     'from_id' => Auth::user()->id,
                     'to_id' => $request['id'],
                     // 'message' => $messageData
