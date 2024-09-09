@@ -184,8 +184,8 @@ class MessagesController extends Controller
                 } else {
                     $attachment_type = 'file';
                 }
+                $message->attachment_type = $attachment_type;
             }
-            $message->attachment_type = $attachment_type;
             return $message;
         });
         $totalMessages = $messages->total();
