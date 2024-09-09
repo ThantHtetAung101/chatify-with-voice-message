@@ -176,7 +176,16 @@ class MessagesController extends Controller
         $decodedMessages = $messages->map(function ($message) {
             if ($message->attachment) {
                 $message->attachment = json_decode($message->attachment, true)['new_name'];
+                $fileExtension = strtolower(pathinfo($message->attachment, PATHINFO_EXTENSION));
+                if (in_array($fileExtension, ['wav', 'mp3'])) {
+                    $attachment_type = 'audio';
+                } elseif (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $attachment_type = 'image';
+                } else {
+                    $attachment_type = 'file';
+                }
             }
+            $message->attachment_type = $attachment_type;
             return $message;
         });
         $totalMessages = $messages->total();
