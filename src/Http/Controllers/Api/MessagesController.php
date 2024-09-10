@@ -156,7 +156,7 @@ class MessagesController extends Controller
                     // 'message' => $messageData
                     'message' => Chatify::messageCard(@$messageData, true, false),
                 ]);
-                $this->sendPushNotification("New Message!", $request['message'], 0, $request['id']);
+                // $this->sendPushNotification("New Message!", $request['message'], 0, $request['id']);
             }
         }
 
