@@ -9,8 +9,11 @@ use App\Models\ChMessage as Message;
 use App\Models\ChFavorite as Favorite;
 use Chatify\Facades\ChatifyMessenger as Chatify;
 use App\Models\User;
+use App\Models\Fcmtokeykey;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -152,6 +155,7 @@ class MessagesController extends Controller
                     // 'message' => $messageData
                     'message' => Chatify::messageCard(@$messageData, true, false),
                 ]);
+                $this->sendPushNotification("New Message!", $request['message'], 0, $request['id']);
             }
         }
 
@@ -415,5 +419,77 @@ class MessagesController extends Controller
         return Response::json([
             'status' => $status,
         ], 200);
+    }
+
+    public function sendPushNotification($title, $message, $isOrder, $userId = null, $imgUrl = null)
+    {
+        $credentialsFilePath = $_SERVER['DOCUMENT_ROOT'] . '/assets/firebase/fcm-server-key.json';
+        $client = new Google_Client();
+        $client->setAuthConfig($credentialsFilePath);
+        $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+        $client->refreshTokenWithAssertion();
+        $token = $client->getAccessToken();
+        $access_token = $token['access_token'];
+        $projectId = config('chatify.project_id');
+
+        $url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
+        if (!$userId) {
+            $fcmUserTokens = Fcmtokeykey::select('token')->groupBy('token')->get()->pluck('token');
+        } else {
+            $fcmUserTokens = Fcmtokeykey::select('token')->where('user_id', $userId)->groupBy('token')->latest()->pluck('token');
+        }
+
+        // Batch the tokens (e.g., 500 tokens per batch)
+        $batchSize = 1000;
+        $batches = $fcmUserTokens->chunk($batchSize);
+
+        foreach ($batches as $batch) {
+            $tokens = $batch->all();
+            $notifications = [
+                'title' => $title,
+                'body' => $message,
+            ];
+
+            if ($imgUrl) {
+                $notifications['image'] = $imgUrl;
+            }
+
+            $data = [
+                'token' => $batch[0],
+                'notification' => $notifications,
+                'data' => [
+                    'is_order' => (string)$isOrder,
+                ],
+                'apns' => [
+                    'headers' => [
+                        'apns-priority' => '10',
+                    ],
+                    'payload' => [
+                        'aps' => [
+                            'sound' => 'default',
+                        ]
+                    ],
+                ],
+                'android' => [
+                    'priority' => 'high',
+                    'notification' => [
+                        'sound' => 'default',
+                    ]
+                ],
+            ];
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer $access_token",
+                'Content-Type' => "application/json"
+            ])->post($url, [
+                'message' => $data
+            ]);
+            if ($response->failed()) {
+                Log::error('Failed to send push notification', [
+                    'response' => $response->body(),
+                    'tokens' => $tokens
+                ]);
+            }
+        }
+        return true;
     }
 }
