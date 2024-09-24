@@ -543,8 +543,7 @@ class MessagesController extends Controller
         ]);
         if ($response->failed()) {
             Log::error('Failed to send push notification', [
-                'response' => $response->body(),
-                'tokens' => $tokens
+                'response' => $response->body()
             ]);
         }
         return true;
