@@ -156,7 +156,7 @@ class MessagesController extends Controller
                     // 'message' => $messageData
                     'message' => Chatify::messageCard(@$messageData, true, false),
                 ]);
-                $this->sendPushNotification("New Message!", $request['message'], 0, $request['id']);
+                $this->sendPushNotification("New Message!", $request['message'], $request['id']);
             }
         }
 
@@ -422,7 +422,7 @@ class MessagesController extends Controller
         ], 200);
     }
 
-    public function sendPushNotification($title, $message, $isOrder, $userId = null, $imgUrl = null)
+    public function sendPushNotification($title, $message, $userId = null, $imgUrl = null)
     {
         $credentialsFilePath = $_SERVER['DOCUMENT_ROOT'] . '/assets/firebase/fcm-server-key.json';
         $client = new Google_Client();
@@ -434,63 +434,50 @@ class MessagesController extends Controller
         $projectId = config('chatify.project_id');
 
         $url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
-        if (!$userId) {
-            $fcmUserTokens = Fcmtokeykey::select('token')->groupBy('token')->get()->pluck('token');
-        } else {
-            $fcmUserTokens = Fcmtokeykey::select('token')->where('user_id', $userId)->groupBy('token')->latest()->pluck('token');
+        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->groupBy('token')->first();
+
+        $notifications = [
+            'title' => $title,
+            'body' => $message,
+        ];
+
+        if ($imgUrl) {
+            $notifications['image'] = $imgUrl;
         }
 
-        // Batch the tokens (e.g., 500 tokens per batch)
-        $batchSize = 1000;
-        $batches = $fcmUserTokens->chunk($batchSize);
-
-        foreach ($batches as $batch) {
-            $tokens = $batch->all();
-            $notifications = [
-                'title' => $title,
-                'body' => $message,
-            ];
-
-            if ($imgUrl) {
-                $notifications['image'] = $imgUrl;
-            }
-
-            $data = [
-                'token' => $batch[0],
-                'notification' => $notifications,
-                'data' => [
-                    'is_order' => (string)$isOrder,
+        $data = [
+            'token' => $fcm->token,
+            'notification' => $notifications,
+            'apns' => [
+                'headers' => [
+                    'apns-priority' => '10',
                 ],
-                'apns' => [
-                    'headers' => [
-                        'apns-priority' => '10',
-                    ],
-                    'payload' => [
-                        'aps' => [
-                            'sound' => 'default',
-                        ]
-                    ],
-                ],
-                'android' => [
-                    'priority' => 'high',
-                    'notification' => [
+                'payload' => [
+                    'aps' => [
                         'sound' => 'default',
                     ]
                 ],
-            ];
-            $response = Http::withHeaders([
-                'Authorization' => "Bearer $access_token",
-                'Content-Type' => "application/json"
-            ])->post($url, [
-                'message' => $data
+            ],
+            'android' => [
+                'priority' => 'high',
+                'notification' => [
+                    'sound' => 'default',
+                ]
+            ],
+        ];
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer $access_token",
+            'Content-Type' => "application/json"
+        ])->post($url, [
+            'message' => $data
+        ]);
+        if ($response->failed()) {
+            Log::error('Failed to send push notification', [
+                'response' => $response->body(),
+                'tokens' => $tokens
             ]);
-            if ($response->failed()) {
-                Log::error('Failed to send push notification', [
-                    'response' => $response->body(),
-                    'tokens' => $tokens
-                ]);
-            }
         }
+
         return true;
     }
 }
