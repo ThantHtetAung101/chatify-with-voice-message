@@ -434,7 +434,7 @@ class MessagesController extends Controller
         $projectId = config('chatify.project_id');
 
         $url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
-        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->groupBy('token')->first();
+        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->first();
 
         $notifications = [
             'title' => $title,
