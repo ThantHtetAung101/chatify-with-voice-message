@@ -167,7 +167,7 @@ class ChatifyMessenger
                 'type' => $attachment_type
             ],
             'timeAgo' => $msg->created_at->diffForHumans(),
-            'created_at' => $msg->created_at->toIso8601String(),
+            'created_at' => $msg->created_at,
             'isSender' => ($msg->from_id == Auth::user()->id),
             'seen' => $msg->seen,
         ];
@@ -277,7 +277,7 @@ class ChatifyMessenger
             // Get Unseen messages counter
             $unseenCounter = $this->countUnseenMessages($user->id);
             if ($lastMessage) {
-                $lastMessage->created_at = $lastMessage->created_at->toIso8601String();
+                $lastMessage->created_at = $lastMessage->created_at;
                 $lastMessage->timeAgo = $lastMessage->created_at->diffForHumans();
             }
             return view('Chatify::layouts.listItem', [
