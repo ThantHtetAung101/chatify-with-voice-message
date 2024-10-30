@@ -473,11 +473,6 @@ class MessagesController extends Controller
                 ])->post($url, [
                     'message' => $data
                 ]);
-                if ($response->failed()) {
-                    Log::error('Failed to send push notification', [
-                        'response' => $response->body()
-                    ]);
-                }
 
                 return true;
             }
