@@ -504,7 +504,7 @@ class MessagesController extends Controller
         $projectId = config('chatify.project_id');
 
         $url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
-        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->first();
+        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->get();
 
         $notifications = [
             'title' => $title,
@@ -515,37 +515,42 @@ class MessagesController extends Controller
             $notifications['image'] = $imgUrl;
         }
 
-        $data = [
-            'token' => $fcm->token,
-            'notification' => $notifications,
-            'apns' => [
-                'headers' => [
-                    'apns-priority' => '10',
-                ],
-                'payload' => [
-                    'aps' => [
-                        'sound' => 'default',
-                    ]
-                ],
-            ],
-            'android' => [
-                'priority' => 'high',
-                'notification' => [
-                    'sound' => 'default',
-                ]
-            ],
-        ];
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer $access_token",
-            'Content-Type' => "application/json"
-        ])->post($url, [
-            'message' => $data
-        ]);
-        if ($response->failed()) {
-            Log::error('Failed to send push notification', [
-                'response' => $response->body()
-            ]);
+        if ($fcm) {
+            foreach ($fcm as $fcmKey) {
+                $data = [
+                    'token' => $fcmKey->token,
+                    'notification' => $notifications,
+                    'apns' => [
+                        'headers' => [
+                            'apns-priority' => '10',
+                        ],
+                        'payload' => [
+                            'aps' => [
+                                'sound' => 'default',
+                            ]
+                        ],
+                    ],
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => [
+                            'sound' => 'default',
+                        ]
+                    ],
+                ];
+                $response = Http::withHeaders([
+                    'Authorization' => "Bearer $access_token",
+                    'Content-Type' => "application/json"
+                ])->post($url, [
+                    'message' => $data
+                ]);
+                if ($response->failed()) {
+                    Log::error('Failed to send push notification', [
+                        'response' => $response->body()
+                    ]);
+                }
+
+                return true;
+            }
         }
-        return true;
     }
 }
