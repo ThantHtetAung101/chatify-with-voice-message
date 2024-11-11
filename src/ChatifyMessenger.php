@@ -168,7 +168,7 @@ class ChatifyMessenger
             ],
             'timeAgo' => $msg->created_at->diffForHumans(),
             'created_at' => $msg->created_at,
-            'isSender' => ($msg->from_id == Auth::user()->id),
+            'isSender' => ($msg->from_id == 1),
             'seen' => $msg->seen,
         ];
     }
@@ -202,8 +202,8 @@ class ChatifyMessenger
      */
     public function fetchMessagesQuery($user_id)
     {
-        return Message::where('from_id', Auth::user()->id)->where('to_id', $user_id)
-            ->orWhere('from_id', $user_id)->where('to_id', Auth::user()->id);
+        return Message::where('from_id', 1)->where('to_id', $user_id)
+            ->orWhere('from_id', $user_id)->where('to_id', 1);
     }
 
     /**
@@ -233,7 +233,7 @@ class ChatifyMessenger
     public function makeSeen($user_id)
     {
         Message::Where('from_id', $user_id)
-            ->where('to_id', Auth::user()->id)
+            ->where('to_id', 1)
             ->where('seen', 0)
             ->update(['seen' => 1]);
         return 1;
@@ -258,7 +258,7 @@ class ChatifyMessenger
      */
     public function countUnseenMessages($user_id)
     {
-        return Message::where('from_id', $user_id)->where('to_id', Auth::user()->id)->where('seen', 0)->count();
+        return Message::where('from_id', $user_id)->where('to_id', 1)->where('seen', 0)->count();
     }
 
     /**
@@ -317,7 +317,7 @@ class ChatifyMessenger
      */
     public function inFavorite($user_id)
     {
-        return Favorite::where('user_id', Auth::user()->id)
+        return Favorite::where('user_id', 1)
             ->where('favorite_id', $user_id)->count() > 0
             ? true : false;
     }
@@ -334,13 +334,13 @@ class ChatifyMessenger
         if ($action > 0) {
             // Star
             $star = new Favorite();
-            $star->user_id = Auth::user()->id;
+            $star->user_id = 1;
             $star->favorite_id = $user_id;
             $star->save();
             return $star ? true : false;
         } else {
             // UnStar
-            $star = Favorite::where('user_id', Auth::user()->id)->where('favorite_id', $user_id)->delete();
+            $star = Favorite::where('user_id', 1)->where('favorite_id', $user_id)->delete();
             return $star ? true : false;
         }
     }

@@ -140,7 +140,7 @@ class MessagesController extends Controller
 
         if (!$error->status) {
             $message = Chatify::newMessage([
-                'from_id' => Auth::user()->id,
+                'from_id' => 1,
                 'to_id' => $request['id'],
                 'body' => htmlentities(trim($request['message']), ENT_QUOTES, 'UTF-8'),
                 'attachment' => ($attachment) ? json_encode((object)[
