@@ -58,6 +58,9 @@ $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor()
                 </div>
             </div>
         @endif
+        @if ($admin_name)
+            <span style="font-size: 10px; margin-right: 10px;">sent by {{$admin_name}}</span>
+        @endif
     </div>
 </div>
 @if ($attachment->type == 'audio')

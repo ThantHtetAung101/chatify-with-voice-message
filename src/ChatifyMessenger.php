@@ -170,6 +170,7 @@ class ChatifyMessenger
             'created_at' => $msg->created_at,
             'isSender' => ($msg->from_id == 1),
             'seen' => $msg->seen,
+            'admin_name' => $msg->admin_name,
         ];
     }
 
@@ -219,6 +220,7 @@ class ChatifyMessenger
         $message->to_id = $data['to_id'];
         $message->body = $data['body'];
         $message->attachment = $data['attachment'];
+        $message->admin_name = $data['admin_name'];
         $message->save();
         return $message;
     }
