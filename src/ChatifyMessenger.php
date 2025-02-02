@@ -220,7 +220,7 @@ class ChatifyMessenger
         $message->to_id = $data['to_id'];
         $message->body = $data['body'];
         $message->attachment = $data['attachment'];
-        $message->admin_name = $data['admin_name'];
+        $message->admin_name = $data['admin_name'] ?? null;
         $message->save();
         return $message;
     }
