@@ -502,9 +502,8 @@ class MessagesController extends Controller
         $client->refreshTokenWithAssertion();
         $token = $client->getAccessToken();
         $access_token = $token['access_token'];
-        $projectId = config('chatify.project_id');
 
-        $url = "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
+        $url = "https://fcm.googleapis.com/v1/projects/asia-food-jpmm/messages:send";
         $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->get();
 
         $notifications = [
