@@ -543,6 +543,7 @@ class MessagesController extends Controller
                 ])->post($url, [
                     'message' => $data
                 ]);
+                dd($response->json());
 
                 return true;
             }
