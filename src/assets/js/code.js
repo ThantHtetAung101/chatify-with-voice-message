@@ -25,11 +25,23 @@ const messagesContainer = $(".messenger-messagingView .m-body"),
 const getMessengerId = () => $("meta[name=id]").attr("content");
 const setMessengerId = (id) => $("meta[name=id]").attr("content", id);
 
+// Setting up confirm modal dialogue
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
 /**
- *-------------------------------------------------------------
- * Pusher initialization
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Pusher initialization
+*-------------------------------------------------------------
+*/
 Pusher.logToConsole = chatify.pusher.debug;
 const pusher = new Pusher(chatify.pusher.key, {
   encrypted: chatify.pusher.options.encrypted,
@@ -46,10 +58,10 @@ const pusher = new Pusher(chatify.pusher.key, {
   },
 });
 /**
- *-------------------------------------------------------------
- * Re-usable methods
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Re-usable methods
+*-------------------------------------------------------------
+*/
 const escapeHtml = (unsafe) => {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -80,10 +92,10 @@ function updateSelectedContact(user_id) {
     .addClass("m-list-active");
 }
 /**
- *-------------------------------------------------------------
- * Global Templates
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Global Templates
+*-------------------------------------------------------------
+*/
 // Loading svg
 function loadingSVG(size = "25px", className = "", style = "") {
   return `
@@ -158,16 +170,16 @@ function avatarLoading(items) {
 // While sending a message, show this temporary message card.
 function sendTempMessageCard(message, id) {
   return `
- <div class="message-card mc-sender" data-id="${id}">
-     <div class="message-card-content">
-         <div class="message">
-             ${message}
-             <sub>
-                 <span class="far fa-clock"></span>
-             </sub>
-         </div>
-     </div>
- </div>
+<div class="message-card mc-sender" data-id="${id}">
+  <div class="message-card-content">
+      <div class="message">
+          ${message}
+          <sub>
+              <span class="far fa-clock"></span>
+          </sub>
+      </div>
+  </div>
+</div>
 `;
 }
 // upload image preview card.
@@ -175,23 +187,23 @@ function attachmentTemplate(fileType, fileName, imgURL = null) {
   if (fileType != "image") {
     return (
       `
- <div class="attachment-preview">
-     <span class="fas fa-times cancel"></span>
-     <p style="padding:0px 30px;"><span class="fas fa-file"></span> ` +
+<div class="attachment-preview">
+  <span class="fas fa-times cancel"></span>
+  <p style="padding:0px 30px;"><span class="fas fa-file"></span> ` +
       escapeHtml(fileName) +
       `</p>
- </div>
+</div>
 `
     );
   } else {
     return (
       `
 <div class="attachment-preview">
- <span class="fas fa-times cancel"></span>
- <div class="image-file chat-image" style="background-image: url('` +
+<span class="fas fa-times cancel"></span>
+<div class="image-file chat-image" style="background-image: url('` +
       imgURL +
       `');"></div>
- <p><span class="fas fa-file-image"></span> ` +
+<p><span class="fas fa-file-image"></span> ` +
       escapeHtml(fileName) +
       `</p>
 </div>
@@ -206,10 +218,10 @@ function activeStatusCircle() {
 }
 
 /**
- *-------------------------------------------------------------
- * Css Media Queries [For responsive design]
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Css Media Queries [For responsive design]
+*-------------------------------------------------------------
+*/
 $(window).resize(function () {
   cssMediaQueries();
 });
@@ -233,10 +245,10 @@ function cssMediaQueries() {
 }
 
 /**
- *-------------------------------------------------------------
- * App Modal
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* App Modal
+*-------------------------------------------------------------
+*/
 let app_modal = function ({
   show = true,
   name,
@@ -270,10 +282,10 @@ let app_modal = function ({
 };
 
 /**
- *-------------------------------------------------------------
- * Slide to bottom on [action] - e.g. [message received, sent, loaded]
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Slide to bottom on [action] - e.g. [message received, sent, loaded]
+*-------------------------------------------------------------
+*/
 function scrollToBottom(container) {
   $(container)
     .stop()
@@ -283,10 +295,10 @@ function scrollToBottom(container) {
 }
 
 /**
- *-------------------------------------------------------------
- * click and drag to scroll - function
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* click and drag to scroll - function
+*-------------------------------------------------------------
+*/
 function hScroller(scroller) {
   const slider = document.querySelector(scroller);
   let isDown = false;
@@ -314,13 +326,13 @@ function hScroller(scroller) {
 }
 
 /**
- *-------------------------------------------------------------
- * Disable/enable message form fields, messaging container...
- * on load info or if needed elsewhere.
- *
- * Default : true
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Disable/enable message form fields, messaging container...
+* on load info or if needed elsewhere.
+*
+* Default : true
+*-------------------------------------------------------------
+*/
 function disableOnLoad(disable = true) {
   if (disable) {
     // hide star button
@@ -350,10 +362,10 @@ function disableOnLoad(disable = true) {
 }
 
 /**
- *-------------------------------------------------------------
- * Error message card
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Error message card
+*-------------------------------------------------------------
+*/
 function errorMessageCard(id) {
   messagesContainer
     .find(".message-card[data-id=" + id + "]")
@@ -368,10 +380,10 @@ function errorMessageCard(id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Fetch id data (user/group) and update the view
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Fetch id data (user/group) and update the view
+*-------------------------------------------------------------
+*/
 function IDinfo(id) {
   // clear temporary message id
   temporaryMsgId = 0;
@@ -438,98 +450,114 @@ function IDinfo(id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Send message function
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Send message function
+*-------------------------------------------------------------
+*/
 var audioMessage = null
 function sendMessage() {
-  temporaryMsgId += 1;
-  let tempID = `temp_${temporaryMsgId}`;
-  let hasFile = !!$(".upload-attachment").val();
-  const inputValue = $.trim(messageInput.val());
-  if (inputValue.length > 0 || hasFile || audioMessage) {
-    const formData = new FormData($("#message-form")[0]);
-    formData.append("id", getMessengerId());
-    formData.append("temporaryMsgId", tempID);
-    if (audioMessage) {
-      formData.append('audio_data', audioMessage, 'file');
-      formData.append('type', 'audio');
-    }
-    formData.append("_token", csrfToken);
-    $.ajax({
-      url: $("#message-form").attr("action"),
-      method: "POST",
-      data: formData,
-      dataType: "JSON",
-      processData: false,
-      contentType: false,
-      beforeSend: () => {
-        // remove message hint
-        $(".messages").find(".message-hint").hide();
-        // append a temporary message card
-        if (hasFile) {
-          messagesContainer
-            .find(".messages")
-            .append(
-              sendTempMessageCard(
-                inputValue + "\n" + loadingSVG("28px"),
-                tempID
-              )
+  Swal.fire({
+    title: "Will you send?",
+    icon: "info",
+    showCancelButton: !0,
+    confirmButtonClass: "btn btn-primary w-xs me-2 mt-2",
+    cancelButtonClass: "btn btn-danger w-xs mt-2 text-black",
+    buttonsStyling: !1,
+    showCloseButton: !0,
+  }).then(function (t) {
+    if (t.value) {
+      temporaryMsgId += 1;
+      let tempID = `temp_${temporaryMsgId}`;
+      let hasFile = !!$(".upload-attachment").val();
+      const inputValue = $.trim(messageInput.val());
+      if (inputValue.length > 0 || hasFile || audioMessage) {
+        const formData = new FormData($("#message-form")[0]);
+        formData.append("id", getMessengerId());
+        formData.append("temporaryMsgId", tempID);
+        if (audioMessage) {
+          console.log('audio appeneded');
+
+          formData.append('audio_data', audioMessage, 'file');
+          formData.append('type', 'audio');
+        }
+        formData.append("_token", csrfToken);
+        $.ajax({
+          url: $("#message-form").attr("action"),
+          method: "POST",
+          data: formData,
+          dataType: "JSON",
+          processData: false,
+          contentType: false,
+          beforeSend: () => {
+            // remove message hint
+            $(".messages").find(".message-hint").hide();
+            // append a temporary message card
+            if (hasFile) {
+              messagesContainer
+                .find(".messages")
+                .append(
+                  sendTempMessageCard(
+                    inputValue + "\n" + loadingSVG("28px"),
+                    tempID
+                  )
+                );
+            } else {
+              messagesContainer
+                .find(".messages")
+                .append(sendTempMessageCard(inputValue, tempID));
+            }
+            // scroll to bottom
+            scrollToBottom(messagesContainer);
+            messageInput.css({ height: "42px" });
+            // form reset and focus
+            $("#message-form").trigger("reset");
+            cancelAttachment();
+            messageInput.focus();
+          },
+          success: (data) => {
+            if (data.error > 0) {
+              // message card error status
+              errorMessageCard(tempID);
+              console.error(data.error_msg);
+            } else {
+              // update contact item
+              updateContactItem(getMessengerId());
+              // temporary message card
+              const tempMsgCardElement = messagesContainer.find(
+                `.message-card[data-id=${data.tempID}]`
+              );
+              // add the message card coming from the server before the temp-card
+              tempMsgCardElement.before(data.message);
+              // then, remove the temporary message card
+              tempMsgCardElement.remove();
+              // scroll to bottom
+              scrollToBottom(messagesContainer);
+              // send contact item updates
+              sendContactItemUpdates(true);
+
+              audioMessage = null;
+            }
+          },
+          error: () => {
+            // message card error status
+            errorMessageCard(tempID);
+            // error log
+            console.error(
+              "Failed sending the message! Please, check your server response."
             );
-        } else {
-          messagesContainer
-            .find(".messages")
-            .append(sendTempMessageCard(inputValue, tempID));
-        }
-        // scroll to bottom
-        scrollToBottom(messagesContainer);
-        messageInput.css({ height: "42px" });
-        // form reset and focus
-        $("#message-form").trigger("reset");
-        cancelAttachment();
-        messageInput.focus();
-      },
-      success: (data) => {
-        if (data.error > 0) {
-          // message card error status
-          errorMessageCard(tempID);
-          console.error(data.error_msg);
-        } else {
-          // update contact item
-          updateContactItem(getMessengerId());
-          // temporary message card
-          const tempMsgCardElement = messagesContainer.find(
-            `.message-card[data-id=${data.tempID}]`
-          );
-          // add the message card coming from the server before the temp-card
-          tempMsgCardElement.before(data.message);
-          // then, remove the temporary message card
-          tempMsgCardElement.remove();
-          // scroll to bottom
-          scrollToBottom(messagesContainer);
-          // send contact item updates
-          sendContactItemUpdates(true);
-        }
-      },
-      error: () => {
-        // message card error status
-        errorMessageCard(tempID);
-        // error log
-        console.error(
-          "Failed sending the message! Please, check your server response."
-        );
-      },
-    });
-  }
-  return false;
+          },
+        });
+      }
+    }
+    return false;
+  })
 }
 
 /**
- *-------------------------------------------------------------
- * Fetch messages from database
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Fetch messages from database
+*-------------------------------------------------------------
+*/
 let messagesPage = 1;
 let noMoreMessages = false;
 let messagesLoading = false;
@@ -597,10 +625,10 @@ function fetchMessages(id, newFetch = false) {
 }
 
 /**
- *-------------------------------------------------------------
- * Cancel file attached in the message.
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Cancel file attached in the message.
+*-------------------------------------------------------------
+*/
 function cancelAttachment() {
   $(".messenger-sendCard").find(".attachment-preview").remove();
   $(".upload-attachment").replaceWith(
@@ -609,20 +637,20 @@ function cancelAttachment() {
 }
 
 /**
- *-------------------------------------------------------------
- * Cancel updating avatar in settings
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Cancel updating avatar in settings
+*-------------------------------------------------------------
+*/
 function cancelUpdatingAvatar() {
   $(".upload-avatar-preview").css("background-image", defaultAvatarInSettings);
   $(".upload-avatar").replaceWith($(".upload-avatar").val("").clone(true));
 }
 
 /**
- *-------------------------------------------------------------
- * Pusher channels and event listening..
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Pusher channels and event listening..
+*-------------------------------------------------------------
+*/
 
 // subscribe to the channel
 const channelName = "private-chatify";
@@ -641,6 +669,8 @@ initClientChannel();
 // Listen to messages, and append if data received
 channel.bind("messaging", function (data) {
   if (data.from_id == getMessengerId() && data.to_id == auth_id) {
+    console.log('this one');
+
     $(".messages").find(".message-hint").remove();
     messagesContainer.find(".messages").append(data.message);
     makeSeen(true);
@@ -654,6 +684,8 @@ channel.bind("messaging", function (data) {
     scrollToBottom(messagesContainer);
     sendContactItemUpdates(true);
   }
+  updateContactItem(data.from_id);
+  sendContactItemUpdates(true);
 
   playNotificationSound(
     "new_message",
@@ -738,10 +770,10 @@ function handleVisibilityChange() {
 document.addEventListener("visibilitychange", handleVisibilityChange, false);
 
 /**
- *-------------------------------------------------------------
- * Trigger typing event
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Trigger typing event
+*-------------------------------------------------------------
+*/
 function isTyping(status) {
   return clientSendChannel.trigger("client-typing", {
     from_id: auth_id, // Me
@@ -751,10 +783,10 @@ function isTyping(status) {
 }
 
 /**
- *-------------------------------------------------------------
- * Trigger seen event
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Trigger seen event
+*-------------------------------------------------------------
+*/
 function makeSeen(status) {
   if (document?.hidden) {
     return;
@@ -778,10 +810,10 @@ function makeSeen(status) {
 }
 
 /**
- *-------------------------------------------------------------
- * Trigger contact item updates
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Trigger contact item updates
+*-------------------------------------------------------------
+*/
 function sendContactItemUpdates(status) {
   return clientSendChannel.trigger("client-contactItem", {
     from: auth_id, // Me
@@ -791,20 +823,20 @@ function sendContactItemUpdates(status) {
 }
 
 /**
- *-------------------------------------------------------------
- * Trigger message delete
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Trigger message delete
+*-------------------------------------------------------------
+*/
 function sendMessageDeleteEvent(messageId) {
   return clientSendChannel.trigger("client-messageDelete", {
     id: messageId,
   });
 }
 /**
- *-------------------------------------------------------------
- * Trigger delete conversation
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Trigger delete conversation
+*-------------------------------------------------------------
+*/
 function sendDeleteConversationEvent() {
   return clientSendChannel.trigger("client-deleteConversation", {
     from: auth_id,
@@ -813,10 +845,10 @@ function sendDeleteConversationEvent() {
 }
 
 /**
- *-------------------------------------------------------------
- * Check internet connection using pusher states
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Check internet connection using pusher states
+*-------------------------------------------------------------
+*/
 function checkInternet(state, selector) {
   let net_errs = 0;
   const messengerTitle = $(".messenger-headTitle");
@@ -857,10 +889,10 @@ function checkInternet(state, selector) {
 }
 
 /**
- *-------------------------------------------------------------
- * Get contacts
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Get contacts
+*-------------------------------------------------------------
+*/
 let contactsPage = 1;
 let contactsLoading = false;
 let noMoreContacts = false;
@@ -905,10 +937,10 @@ function getContacts() {
 }
 
 /**
- *-------------------------------------------------------------
- * Update contact item
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Update contact item
+*-------------------------------------------------------------
+*/
 function updateContactItem(user_id) {
   if (user_id != auth_id) {
     $.ajax({
@@ -944,10 +976,10 @@ function updateContactItem(user_id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Star
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Star
+*-------------------------------------------------------------
+*/
 
 function star(user_id) {
   if (getMessengerId() != auth_id) {
@@ -969,10 +1001,10 @@ function star(user_id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Get favorite list
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Get favorite list
+*-------------------------------------------------------------
+*/
 function getFavoritesList() {
   $(".messenger-favorites").html(avatarLoading(4));
   $.ajax({
@@ -997,10 +1029,10 @@ function getFavoritesList() {
 }
 
 /**
- *-------------------------------------------------------------
- * Get shared photos
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Get shared photos
+*-------------------------------------------------------------
+*/
 function getSharedPhotos(user_id) {
   $.ajax({
     url: url + "/shared",
@@ -1017,10 +1049,10 @@ function getSharedPhotos(user_id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Search in messenger
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Search in messenger
+*-------------------------------------------------------------
+*/
 let searchPage = 1;
 let noMoreDataSearch = false;
 let searchLoading = false;
@@ -1074,10 +1106,10 @@ function messengerSearch(input) {
 }
 
 /**
- *-------------------------------------------------------------
- * Delete Conversation
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Delete Conversation
+*-------------------------------------------------------------
+*/
 function deleteConversation(id) {
   $.ajax({
     url: url + "/deleteConversation",
@@ -1129,10 +1161,10 @@ function deleteConversation(id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Delete Message By ID
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Delete Message By ID
+*-------------------------------------------------------------
+*/
 function deleteMessage(id) {
   $.ajax({
     url: url + "/deleteMessage",
@@ -1175,10 +1207,10 @@ function deleteMessage(id) {
 }
 
 /**
- *-------------------------------------------------------------
- * Update Settings
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Update Settings
+*-------------------------------------------------------------
+*/
 function updateSettings() {
   const formData = new FormData($("#update-settings")[0]);
   if (messengerColor) {
@@ -1237,10 +1269,10 @@ function updateSettings() {
 }
 
 /**
- *-------------------------------------------------------------
- * Set Active status
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Set Active status
+*-------------------------------------------------------------
+*/
 function setActiveStatus(status) {
   $.ajax({
     url: url + "/setActiveStatus",
@@ -1257,13 +1289,15 @@ function setActiveStatus(status) {
 }
 
 /**
- *-------------------------------------------------------------
- * On DOM ready
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* On DOM ready
+*-------------------------------------------------------------
+*/
 $(document).ready(function () {
   // get contacts list
   getContacts();
+  const urlParams = new URLSearchParams(window.location.search);
+  IDinfo(urlParams.get('id'))
 
   // get contacts list
   getFavoritesList();
@@ -1587,15 +1621,20 @@ $(document).ready(function () {
   });
   // Switch to Dark/Light mode
   $("body").on("click", ".dark-mode-switch", function () {
+    let btn = document.querySelector('.dark-mode-switch')
     if ($(this).attr("data-mode") == "0") {
       $(this).attr("data-mode", "1");
-      $(this).removeClass("far");
-      $(this).addClass("fas");
+      btn.classList.remove('fa-sun')
+      btn.classList.add('fa-moon')
+      $(this).removeClass("fa-sun");
+      $(this).addClass("fa-moon");
       dark_mode = "dark";
     } else {
       $(this).attr("data-mode", "0");
-      $(this).removeClass("fas");
-      $(this).addClass("far");
+      btn.classList.remove('fa-moon')
+      btn.classList.add('fa-sun')
+      $(this).removeClass("fa-moon");
+      $(this).addClass("fa-sun");
       dark_mode = "light";
     }
   });
@@ -1619,10 +1658,10 @@ $(document).ready(function () {
 });
 
 /**
- *-------------------------------------------------------------
- * Observer on DOM changes
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Observer on DOM changes
+*-------------------------------------------------------------
+*/
 let previousMessengerId = getMessengerId();
 const observer = new MutationObserver(function (mutations) {
   if (getMessengerId() !== previousMessengerId) {
@@ -1639,13 +1678,13 @@ observer.observe(document, config);
 // observer.disconnect();
 
 /**
- *-------------------------------------------------------------
- * Resize messaging area when resize the viewport.
- * on mobile devices when the keyboard is shown, the viewport
- * height is changed, so we need to resize the messaging area
- * to fit the new height.
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Resize messaging area when resize the viewport.
+* on mobile devices when the keyboard is shown, the viewport
+* height is changed, so we need to resize the messaging area
+* to fit the new height.
+*-------------------------------------------------------------
+*/
 var resizeTimeout;
 window.visualViewport.addEventListener("resize", (e) => {
   clearTimeout(resizeTimeout);
@@ -1658,10 +1697,10 @@ window.visualViewport.addEventListener("resize", (e) => {
 });
 
 /**
- *-------------------------------------------------------------
- * Emoji Picker
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Emoji Picker
+*-------------------------------------------------------------
+*/
 const emojiButton = document.querySelector(".emoji-button");
 
 const emojiPicker = new EmojiButton({
@@ -1690,10 +1729,10 @@ emojiPicker.on("emoji", (emoji) => {
 });
 
 /**
- *-------------------------------------------------------------
- * Notification sounds
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Notification sounds
+*-------------------------------------------------------------
+*/
 function playNotificationSound(soundName, condition = false) {
   if ((document.hidden || condition) && chatify.sounds.enabled) {
     const sound = new Audio(
@@ -1703,10 +1742,10 @@ function playNotificationSound(soundName, condition = false) {
   }
 }
 /**
- *-------------------------------------------------------------
- * Update and format dates to time ago.
- *-------------------------------------------------------------
- */
+*-------------------------------------------------------------
+* Update and format dates to time ago.
+*-------------------------------------------------------------
+*/
 function updateElementsDateToTimeAgo() {
   $(".message-time").each(function () {
     const time = $(this).attr("data-time");

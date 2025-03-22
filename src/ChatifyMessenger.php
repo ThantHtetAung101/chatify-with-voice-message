@@ -221,6 +221,8 @@ class ChatifyMessenger
         $message->body = $data['body'];
         $message->attachment = $data['attachment'];
         $message->admin_name = $data['admin_name'] ?? null;
+        $message->created_at = now();
+        $message->updated_at = now();
         $message->save();
         return $message;
     }
