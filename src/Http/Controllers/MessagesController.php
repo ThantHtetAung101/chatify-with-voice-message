@@ -504,7 +504,7 @@ class MessagesController extends Controller
         $access_token = $token['access_token'];
 
         $url = "https://fcm.googleapis.com/v1/projects/asia-food-jpmm/messages:send";
-        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->whereNotNull('token')->where('token', '!=', 'BLACKLISTED')->groupBy('token')->get();
+        $fcm = Fcmtokeykey::select('token')->where('user_id', $userId)->whereNotNull('token')->where('token', '!=', 'BLACKLISTED')->groupBy('token')->latest()->get();
 
         $notifications = [
             'title' => $title,
@@ -543,6 +543,7 @@ class MessagesController extends Controller
                 ])->post($url, [
                     'message' => $data
                 ]);
+                dd($response->json());
                 return true;
             }
         }
