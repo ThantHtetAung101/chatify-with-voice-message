@@ -684,7 +684,7 @@ channel.bind("messaging", function (data) {
     scrollToBottom(messagesContainer);
     sendContactItemUpdates(true);
   }
-  updateContactItem(getMessengerId());
+  updateContactItem(data.from_id);
   sendContactItemUpdates(true);
 
   playNotificationSound(
