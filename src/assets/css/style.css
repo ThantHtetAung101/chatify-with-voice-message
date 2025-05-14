@@ -1340,6 +1340,16 @@ div.loadingPlaceholder-date {
   display: block;
 }
 
+.message-card .actions .edit-btn {
+  display: none;
+  cursor: pointer;
+  color: #333333;
+}
+
+.message-card:hover .actions .edit-btn {
+  display: block;
+}
+
 /*
 *****************************************
 * Emoji Button scroll-bars

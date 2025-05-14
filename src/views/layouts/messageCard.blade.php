@@ -7,7 +7,7 @@ $timeAndSeen =
     " <span class='time'>$timeAgo</span>
     </span>";
 $audioId = substr(md5(uniqid(mt_rand(), true)), 0, 8);
-$messenger_color = Auth::user()->messenger_color;
+$messenger_color = App\Models\User::find(1)->messenger_color;
 $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor();
 ?>
 
@@ -16,6 +16,9 @@ $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor()
     @if ($isSender)
         <div class="actions">
             <i class="fas fa-trash delete-btn" data-id="{{ $id }}"></i>
+        </div>
+        <div class="actions">
+            <i class="fas fa-edit edit-btn" data-id="{{ $id }}" data-message="{{$message}}"></i>
         </div>
     @endif
     {{-- Card --}}
@@ -50,11 +53,12 @@ $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor()
                 <div style="margin-bottom:5px">
                     {!! $timeAndSeen !!}
                 </div>
-                <div class="audio-container">
+                <div class="audio-container" style="display: flex;">
                     <i class="fas fa-play" style="color: {{ $isSender ? 'white' : $senderColor }}"
                         id="playBtn{{ $audioId }}" onclick="playAudio(this)" data-audio="{{ $audioId }}"
                         style="color: white;margin-right:5px;"></i>
-                    <div id="waveform{{ $audioId }}" style="width: 100%; height: 40px;"></div>
+                    <div class="waveform" id="waveform{{ $audioId }}" style="width: 100%; height: 40px;"></div>
+                    <span class="audio-duration" id="audio-duration{{ $audioId }}" style="white-space: nowrap;"></span>
                 </div>
             </div>
         @endif
@@ -91,15 +95,43 @@ $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor()
                 url: "{{ Chatify::getAttachmentUrl($attachment->file) }}"
             });
         }
+        getDuration("{{ Chatify::getAttachmentUrl($attachment->file) }}", function(length) {
+            document.querySelector("#audio-duration{{ $audioId }}").textContent = length;
+        });
+
+        function getDuration(src, cb) {
+            var audio = new Audio();
+            $(audio).on("loadedmetadata", function() {
+                const duration = formatDuration(audio.duration);
+                cb(duration);
+            });
+            audio.src = src;
+        }
+
+        function formatDuration(duration) {
+            const minutes = Math.floor(duration / 60); // Get total minutes
+            const seconds = Math.floor(duration % 60); // Get remaining seconds
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`; // Format to MM:SS
+        }
 
         function playAudio(ele) {
+            let vm = audioVar[ele.dataset.audio]
             if (ele.classList.contains('fa-play')) {
                 ele.classList.remove('fa-play')
                 ele.classList.add('fa-pause')
 
-                audioVar[ele.dataset.audio].play();
+                vm.play();
+                vm.media.ontimeupdate = () => {
+                    document.querySelector(`#audio-duration${ele.dataset.audio}`).textContent = formatDuration(vm.media
+                        .duration - vm.media.currentTime)
+                    if (vm.media.currentTime == vm.media.duration) {
+                        document.querySelector(`#audio-duration${ele.dataset.audio}`).textContent = formatDuration(vm
+                            .media
+                            .duration)
+                    }
+                }
 
-                audioVar[ele.dataset.audio].on('finish', () => {
+                vm.on('finish', () => {
                     let btn = document.getElementById(`playBtn${ele.dataset.audio}`)
 
                     btn.classList.remove('fa-pause');
@@ -109,7 +141,7 @@ $senderColor = $messenger_color ? $messenger_color : Chatify::getFallbackColor()
                 ele.classList.add('fa-play')
                 ele.classList.remove('fa-pause')
 
-                audioVar[ele.dataset.audio].pause()
+                vm.pause()
             }
         }
     </script>

@@ -87,6 +87,11 @@ Route::post('/deleteConversation', 'MessagesController@deleteConversation')->nam
 Route::post('/deleteMessage', 'MessagesController@deleteMessage')->name('message.delete');
 
 /**
+ * Edit Message
+ */
+Route::post('/editMessage', 'MessagesController@editMessage')->name('message.edit');
+
+/**
  * Update setting
  */
 Route::post('/updateSettings', 'MessagesController@updateSettings')->name('avatar.update');

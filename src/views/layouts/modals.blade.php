@@ -17,6 +17,21 @@
           </div>
       </div>
   </div>
+  {{-- ---------------------- Edit Modal ---------------------- --}}
+  <div class="app-modal" data-name="edit">
+      <div class="app-modal-container">
+          <div class="app-modal-card" data-name="edit" data-modal='0'>
+              <div class="app-modal-header">Edit Message</div>
+              <div class="app-modal-body mt-2">
+                <input type="text" id="edited-message" class="form-control">
+              </div>
+              <div class="app-modal-footer">
+                  <a href="javascript:void(0)" class="app-btn cancel">Cancel</a>
+                  <a href="javascript:void(0)" class="app-btn a-btn-primary edit">Update</a>
+              </div>
+          </div>
+      </div>
+  </div>
   {{-- ---------------------- Alert Modal ---------------------- --}}
   <div class="app-modal" data-name="alert">
       <div class="app-modal-container">
@@ -48,9 +63,8 @@
                       </label> --}}
                       {{-- Dark/Light Mode  --}}
                       <p class="divider"></p>
-                      <p class="app-modal-header">Dark Mode <span class="
-                        {{ Auth::user()->dark_mode > 0 ? 'fas' : 'far' }} fa-moon dark-mode-switch"
-                         data-mode="{{ Auth::user()->dark_mode > 0 ? 1 : 0 }}"></span></p>
+                      <p class="app-modal-header">Dark Mode <span class="fa {{ $dark_mode == 'light' ? 'fa-sun' : 'fa-moon' }} dark-mode-switch"
+                         data-mode="{{ $dark_mode == 'light' ? 0 : 1 }}"></span></p>
                       {{-- change messenger color  --}}
                       <p class="divider"></p>
                       {{-- <p class="app-modal-header">Change {{ config('chatify.name') }} Color</p> --}}
