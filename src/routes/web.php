@@ -92,6 +92,11 @@ Route::post('/deleteMessage', 'MessagesController@deleteMessage')->name('message
 Route::post('/editMessage', 'MessagesController@editMessage')->name('message.edit');
 
 /**
+ * Edit Message
+ */
+Route::post('/editMessage', 'MessagesController@editMessage')->name('message.edit');
+
+/**
  * Update setting
  */
 Route::post('/updateSettings', 'MessagesController@updateSettings')->name('avatar.update');

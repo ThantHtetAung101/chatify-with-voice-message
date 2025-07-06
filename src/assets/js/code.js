@@ -833,6 +833,17 @@ function sendMessageDeleteEvent(messageId) {
         id: messageId,
     });
 }
+
+/**
+ *-------------------------------------------------------------
+ * Trigger message edit
+ *-------------------------------------------------------------
+ */
+function sendMessageEditEvent(messageId) {
+    return clientSendChannel.trigger("client-messageEdit", {
+        id: messageId,
+    });
+}
 /**
  *-------------------------------------------------------------
  * Trigger delete conversation
@@ -1242,6 +1253,8 @@ function editMessage(id, message) {
                 buttons: true,
                 body: "",
             });
+
+            sendMessageEditEvent(id);
         },
         error: () => {
             console.error("Server error, check your response");

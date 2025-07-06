@@ -435,6 +435,18 @@ class ChatifyMessenger
         }
     }
 
+    public function editMessage($id, $message)
+    {
+        try {
+            $msg = Message::where('from_id', auth()->id())->where('id', $id)->firstOrFail();
+            $msg->body = $message;
+            $msg->update();
+            return 1;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     /**
      * Return a storage instance with disk name specified in the config.
      *
