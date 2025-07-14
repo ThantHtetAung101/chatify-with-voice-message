@@ -432,17 +432,6 @@ class MessagesController extends Controller
         ], 200);
     }
 
-    public function editMessage(Request $request)
-    {
-        // edit
-        $edit = Chatify::editMessage($request['id'], $request['message']);
-
-        // send the response
-        return Response::json([
-            'edited' => $edit ? 1 : 0,
-        ], 200);
-    }
-
     public function updateSettings(Request $request)
     {
         $msg = null;
