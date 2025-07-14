@@ -12,7 +12,7 @@
 <meta name="url" content="{{ url('') . '/' . config('chatify.routes.prefix') }}" data-user="{{ Auth::user()->id }}">
 
 {{-- scripts --}}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://unpkg.com/wavesurfer.js@7"></script>
 <script src="{{ asset('js/chatify/font.awesome.min.js') }}"></script>
 <script src="{{ asset('js/chatify/autosize.js') }}"></script>
